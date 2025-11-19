@@ -182,3 +182,8 @@ ELIF <condizione-2>:
     ISTRUZIONE 2
 ELSE:
     ISTRUZIONE 3
+
+Come posso concatenare le CONDIZIONI?
+- "and" : congiunzione
+- "or" : disgiunzione
+- "not" : negazione
