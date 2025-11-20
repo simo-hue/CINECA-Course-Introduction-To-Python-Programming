@@ -43,3 +43,6 @@ callable(l.append) per capire se è una funzione
 
 ## modulo ARGPARSE
 
+## modulo SUBPROCESS
+
+## modulo DATETIME
