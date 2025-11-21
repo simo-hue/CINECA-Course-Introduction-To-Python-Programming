@@ -909,3 +909,205 @@ try:
 except ZeroDivisionError:
     logger.exception("Errore nella divisione")  # Include traceback
 ```
+
+### Modulo `argparse` - Parser di argomenti da riga di comando
+
+Crea interfacce CLI professionali.
+
+```python
+import argparse
+
+# Creare il parser
+parser = argparse.ArgumentParser(
+    description="Elabora alcuni file",
+    epilog="Grazie per aver usato il programma!"
+)
+
+# Argomenti posizionali (obbligatori)
+parser.add_argument("input", help="File di input")
+
+# Argomenti opzionali
+parser.add_argument("-o", "--output", help="File di output", default="output.txt")
+parser.add_argument("-v", "--verbose", action="store_true", help="Output dettagliato")
+parser.add_argument("-n", "--numero", type=int, default=1, help="Numero di iterazioni")
+
+# Scelte limitate
+parser.add_argument("--formato", choices=["json", "xml", "csv"], default="json")
+
+# Argomenti multipli
+parser.add_argument("--tags", nargs="+", help="Tag multipli")
+
+# Parse degli argomenti
+args = parser.parse_args()
+
+# Uso
+print(f"Input: {args.input}")
+print(f"Output: {args.output}")
+if args.verbose:
+    print("Modalità verbose attiva")
+print(f"Numero: {args.numero}")
+
+# Esempio di utilizzo dalla riga di comando:
+# python script.py file.txt -o result.txt -v -n 5 --formato json --tags tag1 tag2
+```
+
+---
+
+### Modulo `subprocess` - Esecuzione di processi esterni
+
+Esegue comandi esterni in modo sicuro.
+
+```python
+import subprocess
+
+# Eseguire un comando semplice
+result = subprocess.run(["ls", "-l"], capture_output=True, text=True)
+print(result.stdout)
+print(result.returncode)  # 0 se successo
+
+# Con shell (attenzione alla sicurezza!)
+result = subprocess.run("echo Ciao", shell=True, capture_output=True, text=True)
+print(result.stdout)
+
+# Gestire errori
+try:
+    result = subprocess.run(
+        ["comando_inesistente"],
+        capture_output=True,
+        text=True,
+        check=True  # Solleva eccezione se returncode != 0
+    )
+except subprocess.CalledProcessError as e:
+    print(f"Errore: {e}")
+    print(f"Output: {e.stderr}")
+
+# Timeout
+try:
+    result = subprocess.run(
+        ["sleep", "10"],
+        timeout=5
+    )
+except subprocess.TimeoutExpired:
+    print("Comando terminato per timeout")
+
+# Comunicare con il processo (stdin/stdout)
+process = subprocess.Popen(
+    ["python", "-c", "name = input('Nome: '); print(f'Ciao {name}')"],
+    stdin=subprocess.PIPE,
+    stdout=subprocess.PIPE,
+    text=True
+)
+output, errors = process.communicate(input="Alice\n")
+print(output)  # Ciao Alice
+
+# Esempio pratico: eseguire git
+result = subprocess.run(
+    ["git", "status"],
+    capture_output=True,
+    text=True
+)
+if result.returncode == 0:
+    print(result.stdout)
+else:
+    print("Errore:", result.stderr)
+```
+
+---
+
+### Modulo `datetime` - Gestione di date e orari
+
+Manipola date, orari e intervalli temporali.
+
+```python
+from datetime import datetime, date, time, timedelta
+
+# Data e ora corrente
+now = datetime.now()
+print(now)  # 2025-11-21 14:30:00.123456
+
+# Solo data
+today = date.today()
+print(today)  # 2025-11-21
+
+# Creare date specifiche
+compleanno = date(1990, 5, 15)
+print(compleanno)
+
+# Creare datetime
+evento = datetime(2025, 12, 25, 18, 30, 0)
+print(evento)
+
+# Componenti
+print(now.year)    # 2025
+print(now.month)   # 11
+print(now.day)     # 21
+print(now.hour)    # 14
+print(now.minute)  # 30
+
+# Formattazione (datetime -> stringa)
+formatted = now.strftime("%d/%m/%Y %H:%M:%S")
+print(formatted)  # 21/11/2025 14:30:00
+
+# Pattern comuni
+print(now.strftime("%A, %d %B %Y"))  # Thursday, 21 November 2025
+print(now.strftime("%d-%m-%Y"))      # 21-11-2025
+
+# Parsing (stringa -> datetime)
+data_str = "21/11/2025 14:30"
+parsed = datetime.strptime(data_str, "%d/%m/%Y %H:%M")
+print(parsed)
+
+# Operazioni con timedelta
+domani = today + timedelta(days=1)
+tra_una_settimana = today + timedelta(weeks=1)
+due_ore_fa = now - timedelta(hours=2)
+
+print(domani)
+print(tra_una_settimana)
+
+# Differenza tra date
+nascita = date(1990, 5, 15)
+età_giorni = (today - nascita).days
+età_anni = età_giorni // 365
+print(f"Età: {età_anni} anni ({età_giorni} giorni)")
+
+# Confronto tra date
+if date.today() > date(2020, 1, 1):
+    print("Siamo dopo il 2020")
+
+# Giorno della settimana
+print(today.weekday())  # 0=Lunedì, 6=Domenica
+print(today.strftime("%A"))  # Nome del giorno
+
+# Timestamp Unix
+timestamp = now.timestamp()
+print(timestamp)  # 1700574600.123456
+
+# Da timestamp a datetime
+dt = datetime.fromtimestamp(timestamp)
+print(dt)
+
+# Fuso orario (richiede pytz o zoneinfo)
+from datetime import timezone
+now_utc = datetime.now(timezone.utc)
+print(now_utc)
+```
+
+---
+
+## 💡 Consigli Pratici
+
+1. **Dizionari**: Usa `.get()` per accessi sicuri e evitare `KeyError`
+2. **Funzioni**: Rispetta sempre l'ordine dei parametri (formali, *args, **kwargs)
+3. **Introspezione**: Usa `isinstance()` invece di `type()` per verifiche di tipo
+4. **Path**: Preferisci `pathlib` a `os.path` per codice più leggibile
+5. **Logging**: Configura sempre il logging nelle applicazioni di produzione
+6. **Subprocess**: Evita `shell=True` per ragioni di sicurezza
+
+---
+
+## 📚 Risorse Aggiuntive
+
+- [Documentazione ufficiale Python](https://docs.python.org/3/)
+- [PEP 8 - Style Guide](https://pep8.org/)
+- [Real Python Tutorials](https://realpython.com/)
